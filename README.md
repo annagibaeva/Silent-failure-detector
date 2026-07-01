@@ -23,6 +23,19 @@ It matures along an arc: an offline **detector** (v1) → a continuous **monitor
 
 ---
 
+## Architecture
+
+![Silent-Failure Detector v1 pipeline](architecture.png)
+
+*The v1 pipeline. Ground truth flows **only** into `/eval` — detectors never see the labels — and the
+accent block is the eval spine, present in every version. Published numbers come from the `ClaudeJudge`
+run on the held-out slice, never the stub.*
+
+Editable Mermaid source (maturity arc + this pipeline) and the module-responsibility map:
+**[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
+---
+
 ## The story (why this matters)
 
 Monday morning. The dashboard is green — 88% deflection, CSAT 4.3, 40k weekend conversations. But a
@@ -98,18 +111,10 @@ A frozen **regression set** is re-run on every detector change to catch the auth
 
 ## How it works
 
-```
-Ingest ─▶ Parser/schema ─▶ Heuristic features ─▶ LLM-judge detectors ─▶ Structured signature
-(gen v1 /    (status:ok vs      (cheap, high-        (phantom, ungrounded,     │
- stream v2+)  result.success)    precision filter)    routing-mismatch)        ▼
-                                                        Group-by + freq×severity (+cost) rank
-                                                                                │
-        ┌───────────────────────────────────────────────────────┬─────────────┘
-        ▼ (v1)                        ▼ (v2)                      ▼ (v3)
-   Ranked report               Post-deploy monitor           Inline guardrail
-   + guardrail recs            + new-cluster alerts           (verifier in response path)
-   + 1 before/after loop       + drift/dedup + sampling       block / rewrite / handoff
-```
+See the [Architecture](#architecture) diagram for the v1 data flow. The same spine is reused across
+versions: **v1** runs it offline on a batch; **v2** swaps the generator for a streaming ingest with an
+alert store; **v3** wraps the detector as an inline verifier with a latency budget and a shadow→enforce
+switch.
 
 - **Heuristics** are a cheap, high-precision pre-filter producing *features, not verdicts*:
   `result.success==false`, `result==null`, retrieval `max_score < τ`, `latency > timeout`, repeated
@@ -202,15 +207,30 @@ every step** — get a real number before adding scope.
 
 1. **Generator + parser** — intents, the 5 tools, injected failures, ~80% clean + hard negatives,
    ~800–1000 traces, held-out phrasing slice. *Done when a validator passes on 100% of traces.*
-2. **Phantom-action detector** — heuristic features + LLM judge with evidence spans.
+   **✅ Done**
+2. **Phantom-action detector** — heuristic features + LLM judge with evidence spans. **✅ Done**
 3. **`/eval` for phantom-action only** — P/R/F1, confusion matrix, hard-negative FP rate.
-   *Get one honest number before building anything else.*
-4. **Ungrounded-answer detector + its eval** — same metric treatment.
-5. **Routing-mismatch check + routing eval** — intent→action confusion matrix; misrouting recall.
-6. **Ablation + transfer set** — heuristics vs. hybrid; P/R/F1 on the 15 hand-written traces.
-7. **One guardrail, end-to-end + before/after** — the phantom-action guardrail, measured.
-8. **Group-by + ranked report** — structured-signature grouping; `freq × severity` ranking (+ optional cost overlay).
-9. **Case study + docs** — the Monday-morning story and the learnings.
+   *Get one honest number before building anything else.* **✅ Done**
+4. **Ungrounded-answer detector + its eval** — same metric treatment. **✅ Done**
+5. **Routing-mismatch check + routing eval** — intent→action confusion matrix; misrouting recall. **✅ Done**
+6. **Ablation + transfer set** — heuristics vs. hybrid; P/R/F1 on the 15 hand-written traces. **✅ Done**
+7. **One guardrail, end-to-end + before/after** — the phantom-action guardrail, measured. **✅ Done**
+8. **Group-by + ranked report** — structured-signature grouping; `freq × severity` ranking (+ optional cost overlay). **✅ Done**
+9. **Case study + docs** — the Monday-morning story and the learnings. **✅ Done** (see [docs/case-study.md](docs/case-study.md); paste ClaudeJudge block after `python -m eval.published`)
+
+### Published eval (ClaudeJudge, held-out)
+
+Run locally after setting `ANTHROPIC_API_KEY` in `.env`:
+
+```bash
+pip install -e ".[dev,judge]"
+python -m eval.published   # writes reports/out/published.md
+```
+
+```
+# Paste reports/out/published.md eval block here after keyed run.
+# StubJudge output from `python run_v1.py` is CI smoke only — not a published result.
+```
 
 ### Cut-line (drop from the bottom if behind)
 
