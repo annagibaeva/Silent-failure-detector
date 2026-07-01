@@ -24,8 +24,7 @@ transfer traces.
    *reported* but not yet *fed back* into thresholds; isotonic calibration is the v2 `[calibrate]`
    upgrade.
 
-> **Action:** Copy `.env.example` → `.env`, set your key, run `python -m eval.published`, then paste
-> the `reports/out/published.md` block below the placeholder in this doc and in the README.
+> **Source:** `reports/out/published.md` — Opus `claude-opus-4-8`, held-out, n=1000, seed=7, cache on (2,015 API calls, 2,000 cache hits).
 
 ---
 
@@ -43,34 +42,41 @@ Hard negatives are flagged with `is_hard_negative=True`, labeled clean, and tool
 
 ---
 
-## Published eval (ClaudeJudge — pending)
+## Published eval (ClaudeJudge, held-out)
 
 ```
-# Paste from reports/out/published.md after: python -m eval.published
+# Published numbers (Opus final (n=1000), held-out)
+
+n=1000 seed=7 model=claude-opus-4-8 cache=True {'api_calls': 2015, 'cache_hits': 2000}
+
+## phantom_action
+counts={'tp': 100, 'fp': 0, 'fn': 0, 'tn': 900} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## ungrounded
+counts={'tp': 50, 'fp': 0, 'fn': 0, 'tn': 950} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## misrouting
+counts={'tp': 50, 'fp': 0, 'fn': 0, 'tn': 950} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## transfer (phantom)
+counts={'tp': 4, 'fp': 0, 'fn': 0, 'tn': 11} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0}
+
+## ablation
+heuristics_only: P/R/F1 = 1.0 / 1.0 / 1.0  |  hybrid: P/R/F1 = 1.0 / 1.0 / 1.0
+
+## reliability
+100 phantom detections in [0.9, 1.0] bin; mean_conf=0.983; accuracy=1.0
 ```
 
-### CI smoke reference only (`StubJudge`, held-out, seed=7)
+**Note:** Perfect scores on synthetic held-out data are expected when judge and generator share the same failure taxonomy; transfer set (4/4 phantom TP) is the stronger anti-circularity signal at n=15.
 
-*Do not cite these as published results — they illustrate pipeline shape only.*
+### Staged dev runs (Sonnet, for cost validation)
 
-| Mode | counts | P/R/F1 | κ | hard_neg_fp |
-|------|--------|--------|---|-------------|
-| phantom_action | tp=100, fp=0, fn=0, tn=900 | 1.0 / 1.0 / 1.0 | 1.0 | 0 |
-| ungrounded | tp=0, fp=0, fn=50, tn=950 | 0 / 0 / 0 | 0.0 | 0 |
-| misrouting | tp=50, fp=0, fn=0, tn=950 | 1.0 / 1.0 / 1.0 | 1.0 | 0 |
-
-StubJudge does not judge ungrounded — expect zeros until ClaudeJudge runs.
-
-### Ablation (phantom, held-out slice)
-
-| Row | precision | recall | F1 |
-|-----|-----------|--------|-----|
-| heuristics_only | 1.0 | 1.0 | 1.0 |
-| hybrid (registry + judge) | 1.0 | 1.0 | 1.0 |
-
-### Transfer set (15 hand-written traces, phantom mode)
-
-counts: tp=4, fp=0, fn=0, tn=11 — rates: P/R/F1 = 1.0 *(StubJudge smoke; re-run under ClaudeJudge)*
+| Stage | n | model | API calls | cache hits |
+|-------|---|-------|-----------|------------|
+| validate | 50 | claude-sonnet-4-6 | 115 | 100 |
+| draft | 200 | claude-sonnet-4-6 | 415 | 400 |
+| **final** | **1000** | **claude-opus-4-8** | **2,015** | **2,000** |
 
 ---
 

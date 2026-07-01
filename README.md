@@ -220,17 +220,23 @@ every step** — get a real number before adding scope.
 
 ### Published eval (ClaudeJudge, held-out)
 
-Run locally after setting `ANTHROPIC_API_KEY` in `.env`:
-
-```bash
-pip install -e ".[dev,judge]"
-python -m eval.published   # writes reports/out/published.md
-```
+From `reports/out/published.md` — Opus `claude-opus-4-8`, n=1000, seed=7:
 
 ```
-# Paste reports/out/published.md eval block here after keyed run.
-# StubJudge output from `python run_v1.py` is CI smoke only — not a published result.
+## phantom_action
+counts={'tp': 100, 'fp': 0, 'fn': 0, 'tn': 900} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## ungrounded
+counts={'tp': 50, 'fp': 0, 'fn': 0, 'tn': 950} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## misrouting
+counts={'tp': 50, 'fp': 0, 'fn': 0, 'tn': 950} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0} kappa=1.000 hard_neg_fp=0
+
+## transfer (phantom)
+counts={'tp': 4, 'fp': 0, 'fn': 0, 'tn': 11} rates={'precision': 1.0, 'recall': 1.0, 'f1': 1.0}
 ```
+
+Re-run: `python -m eval.published -n 1000 --model claude-opus-4-8 --out-dir reports/out/stage-final`
 
 ### Cut-line (drop from the bottom if behind)
 

@@ -1,0 +1,82 @@
+<svg viewBox="0 0 820 600" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="820" height="600" fill="#ffffff"/>
+
+  <!-- ============ main pipeline boxes ============ -->
+  <!-- generator -->
+  <rect x="40" y="44" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="70" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/generator</text>
+  <text x="60" y="87" font-family="Helvetica" font-size="10.5" fill="#64748b">labeled synthetic traces</text>
+  <!-- parser -->
+  <rect x="40" y="118" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="144" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/parser</text>
+  <text x="60" y="161" font-family="Helvetica" font-size="10.5" fill="#64748b">schema  .  PII redact (once)</text>
+  <!-- features -->
+  <rect x="40" y="192" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="218" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/features</text>
+  <text x="60" y="235" font-family="Helvetica" font-size="10.5" fill="#64748b">heuristic signals</text>
+  <!-- detector -->
+  <rect x="40" y="266" width="250" height="64" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="291" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/detector  —  registry</text>
+  <text x="60" y="308" font-family="Helvetica" font-size="10.5" fill="#64748b">phantom  .  ungrounded  .  routing</text>
+  <text x="60" y="323" font-family="Helvetica" font-size="10.5" fill="#64748b">grounded verdicts + severity</text>
+  <!-- cluster -->
+  <rect x="40" y="352" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="378" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/cluster</text>
+  <text x="60" y="395" font-family="Helvetica" font-size="10.5" fill="#64748b">group-by signature</text>
+  <!-- reports -->
+  <rect x="40" y="426" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="452" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">/reports</text>
+  <text x="60" y="469" font-family="Helvetica" font-size="10.5" fill="#64748b">rank freq x severity (+cost)</text>
+  <!-- report.md -->
+  <rect x="40" y="500" width="250" height="52" rx="9" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="60" y="526" font-family="Helvetica" font-weight="bold" font-size="13.5" fill="#1f2937">report.md</text>
+  <text x="60" y="543" font-family="Helvetica" font-size="10.5" fill="#64748b">patterns + guardrail to ship</text>
+
+  <!-- ============ vertical flow arrows ============ -->
+  <line x1="165" y1="96"  x2="165" y2="118" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,112 169,112 165,119" fill="#64748b"/>
+  <line x1="165" y1="170" x2="165" y2="192" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,186 169,186 165,193" fill="#64748b"/>
+  <line x1="165" y1="244" x2="165" y2="266" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,260 169,260 165,267" fill="#64748b"/>
+  <line x1="165" y1="330" x2="165" y2="352" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,346 169,346 165,353" fill="#64748b"/>
+  <line x1="165" y1="404" x2="165" y2="426" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,420 169,420 165,427" fill="#64748b"/>
+  <line x1="165" y1="478" x2="165" y2="500" stroke="#64748b" stroke-width="1.6"/>
+  <polygon points="161,494 169,494 165,501" fill="#64748b"/>
+
+  <!-- ============ judge seam ============ -->
+  <rect x="330" y="196" width="180" height="40" rx="20" fill="#f5f6f8" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="350" y="214" font-family="Helvetica" font-weight="bold" font-size="12" fill="#1f2937">Judge seam</text>
+  <text x="350" y="229" font-family="Helvetica" font-size="10.5" fill="#64748b">StubJudge  .  ClaudeJudge</text>
+  <line x1="352" y1="236" x2="294" y2="285" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <polygon points="303,282 297,293 291,285" fill="#94a3b8"/>
+
+  <!-- ============ eval spine ============ -->
+  <rect x="560" y="118" width="240" height="252" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.4"/>
+  <text x="580" y="148" font-family="Helvetica" font-weight="bold" font-size="13" fill="#4f46e5">/eval  —  the spine</text>
+  <line x1="580" y1="158" x2="780" y2="158" stroke="#4f46e5" stroke-width="0.8" opacity="0.4"/>
+  <text x="580" y="182" font-family="Helvetica" font-size="10.5" fill="#334155">P / R / F1  .  confusion  .  kappa</text>
+  <text x="580" y="204" font-family="Helvetica" font-size="10.5" fill="#334155">clean-class false-positive rate</text>
+  <text x="580" y="226" font-family="Helvetica" font-size="10.5" fill="#334155">hard-negative FP</text>
+  <text x="580" y="248" font-family="Helvetica" font-size="10.5" fill="#334155">ablation (heuristics vs hybrid)</text>
+  <text x="580" y="270" font-family="Helvetica" font-size="10.5" fill="#334155">hand-written transfer set</text>
+  <text x="580" y="292" font-family="Helvetica" font-size="10.5" fill="#334155">calibration + thresholds</text>
+  <text x="580" y="330" font-family="Helvetica" font-weight="bold" font-size="10.5" fill="#4f46e5">Published numbers:</text>
+  <text x="580" y="348" font-family="Helvetica" font-size="10.5" fill="#334155">ClaudeJudge  .  held-out slice</text>
+
+  <!-- feeds into eval -->
+  <path d="M290,70 C430,70 430,172 556,172" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <polygon points="553,168 553,176 560,172" fill="#94a3b8"/>
+  <text x="360" y="63" font-family="Helvetica" font-style="italic" font-size="9.5" fill="#64748b">ground-truth labels</text>
+  <path d="M290,300 C440,300 440,254 556,254" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <polygon points="553,250 553,258 560,254" fill="#94a3b8"/>
+  <text x="360" y="316" font-family="Helvetica" font-style="italic" font-size="9.5" fill="#64748b">predictions</text>
+
+  <!-- ============ legend ============ -->
+  <rect x="40" y="572" width="14" height="12" rx="3" fill="#eef2ff" stroke="#4f46e5" stroke-width="1.2"/>
+  <text x="60" y="582" font-family="Helvetica" font-size="10.5" fill="#64748b">the eval spine — present in every version (v1 to v3)</text>
+  <line x1="430" y1="578" x2="458" y2="578" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="464" y="582" font-family="Helvetica" font-size="10.5" fill="#64748b">ground truth flows only to /eval</text>
+</svg>
