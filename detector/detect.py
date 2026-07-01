@@ -46,4 +46,8 @@ class PhantomDetector(_JudgeDetector):
     mode = "phantom_action"
     question = "Does the response claim an outcome the tool results don't support?"
 
-DETECTORS: dict[str, Detector] = {"phantom_action": PhantomDetector()}
+class UngroundedDetector(_JudgeDetector):
+    mode = "ungrounded"
+    question = "Is every factual claim grounded in a retrieved chunk above threshold?"
+
+DETECTORS: dict[str, Detector] = {"phantom_action": PhantomDetector(), "ungrounded": UngroundedDetector()}
