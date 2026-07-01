@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "silent-failure-detector"
+version = "0.1.0"
+description = "Mines fintech support-agent traces for silent failures dashboards miss, clusters them into recurring patterns, and ranks the guardrail to ship first."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Anna Gibaeva", email = "annagibaeva05@gmail.com" }]
+dependencies = []
+
+[project.optional-dependencies]
+# The Saturday core spine (generate -> parse -> heuristics -> eval) runs on the
+# stdlib alone. These extras unlock the LLM judge and the clustering stage.
+judge = ["anthropic>=0.39"]
+cluster = ["numpy>=1.26", "scikit-learn>=1.4", "hdbscan>=0.8.33"]
+dev = ["pytest>=8.0"]
+all = ["anthropic>=0.39", "numpy>=1.26", "scikit-learn>=1.4", "hdbscan>=0.8.33", "pytest>=8.0"]
+
+[tool.setuptools]
+# Top-level packages mirror the README repo tree one-to-one so a reviewer reads
+# the same structure in the filesystem and in the docs.
+packages = [
+    "parser",
+    "generator",
+    "features",
+    "routing",
+    "detector",
+    "guardrails",
+    "cluster",
+    "reports",
+    "eval",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,11 @@
+# Core spine (generate -> parse -> heuristics -> eval) needs nothing here.
+# Install extras only for the stages that use them:
+#   pip install -e ".[judge]"     # LLM judge (detector/)
+#   pip install -e ".[cluster]"   # embeddings + clustering (cluster/)
+#   pip install -e ".[all]"       # everything + pytest
+
+anthropic>=0.39        # detector/ LLM judge
+numpy>=1.26            # cluster/ signature embeddings
+scikit-learn>=1.4      # cluster/ k-means fallback, metrics helpers
+hdbscan>=0.8.33        # cluster/ density clustering
+pytest>=8.0            # tests/
