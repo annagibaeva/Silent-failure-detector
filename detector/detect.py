@@ -50,4 +50,17 @@ class UngroundedDetector(_JudgeDetector):
     mode = "ungrounded"
     question = "Is every factual claim grounded in a retrieved chunk above threshold?"
 
+from routing.routing import routing_mismatch
+
+class RoutingDetector:
+    mode = "misrouting"
+    def detect(self, trace, judge=None, threshold=None):
+        if not routing_mismatch(trace):
+            return None
+        agents = [t for t in trace.turns if t.role == "agent"]
+        span = agents[-1].text if agents else ""
+        return Detection(trace.conversation_id, self.mode, SEVERITY[self.mode], 1.0, span,
+                         ["intent_tool_mismatch"])
+
 DETECTORS: dict[str, Detector] = {"phantom_action": PhantomDetector(), "ungrounded": UngroundedDetector()}
+DETECTORS["misrouting"] = RoutingDetector()
