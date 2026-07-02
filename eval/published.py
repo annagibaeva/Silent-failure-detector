@@ -8,6 +8,7 @@ from detector.detect import DETECTORS
 from eval.harness import eval_mode, ablation, load_transfer
 from eval.local_env import load_local_env
 from detector.calibrate import reliability_bins
+from guardrails.phantom import before_after
 
 def collect_conf_correct(mode: str, traces, judge):
     det = DETECTORS[mode]
@@ -50,6 +51,7 @@ def run_published(
     reliability = reliability_bins(confs, correct)
     transfer = eval_mode("phantom_action", load_transfer(), judge)
     ab = ablation(ds, judge)
+    guardrail = before_after()
     stats = _judge_stats(judge)
     if stats:
         print(f"judge done: {stats['api_calls']} API calls, {stats['cache_hits']} cache hits", flush=True)
@@ -62,9 +64,17 @@ def run_published(
             fh.write(f"## {m}\ncounts={r['counts']} rates={r['rates']} kappa={r['kappa']:.3f} "
                      f"hard_neg_fp={r['hard_negative_fp']}\n\n")
         fh.write(f"## transfer (phantom)\ncounts={transfer['counts']} rates={transfer['rates']}\n\n")
+        fh.write("## guardrail (phantom before/after)\n")
+        fh.write(f"slice_n={guardrail['slice_n']}\n\n")
+        fh.write("| metric | guardrail OFF | guardrail ON |\n")
+        fh.write("| --- | --- | --- |\n")
+        fh.write(f"| phantom confirmation rate | {guardrail['phantom_confirmation_rate_off']:.3f} "
+                 f"| {guardrail['phantom_confirmation_rate_on']:.3f} |\n")
+        fh.write(f"| handed-off rate | - | {guardrail['handed_off_rate']:.3f} |\n\n")
         fh.write(f"## ablation\n{ab}\n\n## reliability\n{reliability}\n")
     print(f"wrote {path}", flush=True)
-    return {"per_mode": per_mode, "transfer": transfer, "ablation": ab, "reliability": reliability, **stats}
+    return {"per_mode": per_mode, "transfer": transfer, "ablation": ab, "guardrail": guardrail,
+            "reliability": reliability, **stats}
 
 
 def main() -> None:

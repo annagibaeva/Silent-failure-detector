@@ -3,7 +3,37 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Protocol
 from parser.schema import Trace
-from generator.tools import CONFIRM_WORDS
+from generator.tools import CONFIRM_WORDS, FAILURE_MODES
+
+# Defensive safety net for the ClaudeJudge path only. The primary fix is the prompt
+# constraint in detect.py (_mode_directive), which asks the model to answer with the
+# EXACT canonical mode string. But models occasionally still return a close synonym;
+# this maps common ones back to the canonical taxonomy so a correct detection is not
+# silently discarded by the `!= self.mode` check in _JudgeDetector.detect.
+_MODE_ALIASES = {
+    "unsupported_outcome_claim": "phantom_action",
+    "unsupported_claim": "phantom_action",
+    "phantom": "phantom_action",
+    "phantom_outcome": "phantom_action",
+    "fabricated_action": "phantom_action",
+    "false_success_claim": "phantom_action",
+    "ungrounded_claim": "ungrounded",
+    "unsupported_by_retrieval": "ungrounded",
+    "hallucination": "ungrounded",
+    "hallucinated": "ungrounded",
+    "not_grounded": "ungrounded",
+}
+
+def _normalize_mode(mode: Optional[str]) -> Optional[str]:
+    """Map a judge-returned failure_mode onto the canonical taxonomy. Canonical strings
+    pass through unchanged; known synonyms are aliased; anything else is returned as-is
+    (so it still fails the strict detector comparison rather than false-matching)."""
+    if mode is None:
+        return None
+    key = mode.strip().lower().replace(" ", "_").replace("-", "_")
+    if key in FAILURE_MODES:
+        return key
+    return _MODE_ALIASES.get(key, mode)
 
 @dataclass
 class Verdict:
@@ -83,12 +113,13 @@ class ClaudeJudge:
                   f"Reply with a single JSON object only (double-quoted keys/strings, no markdown): "
                   f'{{"failure_mode": string|null, "confidence": number, "evidence_span": string}}\n'
                   f"evidence_span MUST be a verbatim substring of the conversation.\n"
-                  f"CONVERSATION:\n{json.dumps(trace.to_dict())}")
+                  f"CONVERSATION:\n{json.dumps(trace.to_judge_dict())}")
         msg = self._client.messages.create(model=self._model, max_tokens=300,
                                            messages=[{"role": "user", "content": prompt}])
         data = self._parse_verdict_json(msg.content[0].text)
         usage = {"input_tokens": msg.usage.input_tokens, "output_tokens": msg.usage.output_tokens}
-        return Verdict(data.get("failure_mode"), float(data.get("confidence", 0.0)),
+        # Normalize onto the canonical taxonomy (defensive net; see _normalize_mode).
+        return Verdict(_normalize_mode(data.get("failure_mode")), float(data.get("confidence", 0.0)),
                        data.get("evidence_span", ""), self._model, self._pv, usage)
 
 
