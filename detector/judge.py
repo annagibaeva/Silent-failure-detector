@@ -83,7 +83,7 @@ class ClaudeJudge:
                   f"Reply with a single JSON object only (double-quoted keys/strings, no markdown): "
                   f'{{"failure_mode": string|null, "confidence": number, "evidence_span": string}}\n'
                   f"evidence_span MUST be a verbatim substring of the conversation.\n"
-                  f"CONVERSATION:\n{json.dumps(trace.to_dict())}")
+                  f"CONVERSATION:\n{json.dumps(trace.to_judge_dict())}")
         msg = self._client.messages.create(model=self._model, max_tokens=300,
                                            messages=[{"role": "user", "content": prompt}])
         data = self._parse_verdict_json(msg.content[0].text)

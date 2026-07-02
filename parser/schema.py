@@ -61,6 +61,16 @@ class Trace:
                 "resolved": self.resolved, "csat": self.csat, "timestamp": self.timestamp,
                 "deploy_id": self.deploy_id, "is_hard_negative": self.is_hard_negative}
 
+    # Ground-truth annotation fields that a real production trace would never carry.
+    # Exposing them to an LLM judge leaks the answer key and invalidates the eval.
+    _JUDGE_HIDDEN_KEYS = ("intent_true", "injected_labels", "is_hard_negative")
+
+    def to_judge_dict(self) -> dict:
+        """Judge-facing view of the trace: identical to to_dict() minus ground-truth
+        annotations (intent_true, injected_labels, is_hard_negative). Never used for
+        scoring — the eval scores off the Trace object, which keeps every field."""
+        return {k: v for k, v in self.to_dict().items() if k not in self._JUDGE_HIDDEN_KEYS}
+
 def validate(trace: Trace) -> list[str]:
     errors: list[str] = []
     if not trace.conversation_id:
