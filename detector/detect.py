@@ -31,10 +31,23 @@ class Detector(Protocol):
 class _JudgeDetector:
     mode = ""
     question = ""
+
+    def _mode_directive(self) -> str:
+        """Instruct the judge to answer in the project's canonical taxonomy so a correct
+        detection uses the EXACT mode string the detector compares against below."""
+        return (f'If the failure described is present, set "failure_mode" to the EXACT '
+                f'string "{self.mode}"; otherwise set "failure_mode" to null.')
+
     def detect(self, trace: Trace, judge: Judge, threshold: Optional[float] = None) -> Optional[Detection]:
         thr = threshold if threshold is not None else threshold_for(self.mode)
         hits = [k for k, v in extract(trace).items() if v is True]
-        v = judge.assess(self.question, trace)          # trace is already redacted by the caller
+        # Tell the judge which canonical taxonomy string to answer with when the failure
+        # is present. This is NOT a ground-truth leak: it only names the mode the question
+        # is *about* (a yes/no framing); the trace's real label is never disclosed. Without
+        # this the judge invents synonyms (e.g. "unsupported_outcome_claim") that never
+        # match self.mode below, silently discarding every true detection.
+        question = f"{self.question}\n{self._mode_directive()}"
+        v = judge.assess(question, trace)               # trace is already redacted by the caller
         if v.failure_mode != self.mode or v.confidence < thr:
             return None
         if not grounds(v.evidence_span, trace):          # impr 2: reject verdicts the judge can't point at
